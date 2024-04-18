@@ -4,8 +4,11 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -46,6 +49,7 @@ public class MusicPlayerGUI extends JFrame{
 	
 	private JLabel songTitle, songArtist;
 	private JPanel playbackButtons;
+	private JSlider playbackSlider;
 	
 	// Allowing to use "File Explorer" in our Application
 	private JFileChooser jFileChooser;
@@ -78,7 +82,7 @@ public class MusicPlayerGUI extends JFrame{
 		// Changing the frame color
 		getContentPane().setBackground(FRAME_COLOR);
 		
-		musicPlayer = new MusicPlayer(); // Instantiate Music Player object in our constructor
+		musicPlayer = new MusicPlayer(this); // Instantiate Music Player object in our constructor
 		jFileChooser = new JFileChooser();
 		
 		// Set a default path for file explorer
@@ -126,9 +130,37 @@ public class MusicPlayerGUI extends JFrame{
 		transparentPanel.add(songArtist);
 		
 		// Play back slider
-			JSlider playbackSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0); // //min //max //value
-			playbackSlider.setBounds(getWidth()/2 - 156, 375, 300, 14);//x //y //width //height
+			playbackSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0); // //min //max //value
+			playbackSlider.setBounds(getWidth()/2 - 156, 351, 300, 36);//x //y //width //height
 			playbackSlider.setBackground(null);
+			playbackSlider.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					// When user is holding the tick, we want to 'pause' the song
+					musicPlayer.pauseSong();
+				}
+				
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					// When the user drops the tick
+					JSlider source = (JSlider)e.getSource();
+					
+					// Get the frame-value from where the user wants to play-back
+					int frame = source.getValue();
+					
+					// UPDATE the current frame in the music player to this frame
+					musicPlayer.setCurrentFrame(frame);
+					
+					// UPDATE currentTime in milliseconds
+					musicPlayer.setCurrentTimeIn_Milliseconds((int)(frame / (2.08 * musicPlayer.getCurrentSong().getFrameRatePerMillisecond())));
+					
+					// To RESUME the song
+					musicPlayer.playCurrentSong();
+					
+					// Toggle-ON 'Pause' Button & Toggle-OFF 'Play' Button
+					enable_PauseButton_disable_PlayButton();
+				}
+			});
 		
 			add(playbackSlider);
 		
@@ -178,6 +210,9 @@ public class MusicPlayerGUI extends JFrame{
 					
 					// Updating SongTitle and Artist
 					update_SongTitle_and_Artist(song);
+					
+					// Update play-back slider
+					update_Playback_Slider(song);
 					
 					// Toggle-ON 'Pause' Button & Toggle-OFF 'Play' Button
 					enable_PauseButton_disable_PlayButton();
@@ -267,9 +302,40 @@ public class MusicPlayerGUI extends JFrame{
 	}
 	
 	
+	// Method to UPDATE our slider from the MusicPlayer class
+	public void setPlaybackSlider_Value(int frame) {
+		playbackSlider.setValue(frame);
+	}
+	
+	
 	private void update_SongTitle_and_Artist(Song song) {
 		songTitle.setText(song.getsongTitle());
 		songArtist.setText(song.getsongArtist());
+	}
+	
+	
+	private void update_Playback_Slider(Song song) {
+		// To UPDATE max count for slider
+		playbackSlider.setMaximum(song.getMp3File().getFrameCount());
+		
+		// Creating the song-length label
+		Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+		
+		// Beginning will be at 00:00
+		JLabel labelBegin = new JLabel("00:00");
+		labelBegin.setFont(new Font("Dialog", Font.BOLD, 18));// name // // size
+		labelBegin.setForeground(TEXT_COLOR);
+		
+		// End will vary depending on the song
+		JLabel labelEnd = new JLabel(song.getsongLength());
+		labelEnd.setFont(new Font("Dialog", Font.BOLD, 18));// name // // size
+		labelEnd.setForeground(TEXT_COLOR);
+		
+		labelTable.put(0, labelBegin);
+		labelTable.put(song.getMp3File().getFrameCount(), labelEnd);
+		
+		playbackSlider.setLabelTable(labelTable);
+		playbackSlider.setPaintLabels(true);
 	}
 	
 	
