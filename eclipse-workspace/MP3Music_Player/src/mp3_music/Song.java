@@ -81,4 +81,5 @@ public class Song {
 	public double getFrameRatePerMillisecond() {
 		return frameRatePerMilliseconds;
 	}
+
 }

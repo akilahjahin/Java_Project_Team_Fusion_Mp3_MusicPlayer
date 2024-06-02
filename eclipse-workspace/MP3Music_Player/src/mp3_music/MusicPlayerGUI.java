@@ -91,7 +91,8 @@ public class MusicPlayerGUI extends JFrame{
 		// Filtering File-Chooser to only see MP3 files(.mp3 extension)
 		jFileChooser.setFileFilter(new FileNameExtensionFilter("MP3", "mp3")); // description // ...extensions
 		
-		addGUIcomponents();		
+		addGUIcomponents();
+
 	}
 	
 	
@@ -175,7 +176,7 @@ public class MusicPlayerGUI extends JFrame{
 	
 	private void addToolbar() {
 		JToolBar toolBar = new JToolBar();
-		toolBar.setBounds(0, 0, getWidth(), 20);  //x //y //getWidth() //height
+		toolBar.setBounds(0, 0, getWidth(), 27);  //x //y //getWidth() //height
 		
 		// To prevent toolBar from being moved
 		toolBar.setFloatable(false);
@@ -228,8 +229,20 @@ public class MusicPlayerGUI extends JFrame{
 		
 		// Adding items to the Play-list menu
 		JMenuItem createPlaylist = new JMenuItem("Create Playist");
-		JMenuItem loadPlaylist = new JMenuItem("Load Playlist");
+		createPlaylist.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// LOAD Music Play_list Dialog
+				new MusicPlaylistDialog(MusicPlayerGUI.this).setVisible(true);
+			}
+		});
+		
 		playlistMenu.add(createPlaylist);
+		
+		
+		JMenuItem loadPlaylist = new JMenuItem("Load Playlist");
+		
 		playlistMenu.add(loadPlaylist);
 		
 		

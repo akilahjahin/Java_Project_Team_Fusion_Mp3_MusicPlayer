@@ -20,7 +20,7 @@ public class MusicPlayer extends PlaybackListener{
 		return currentSong;
 	}
 	
-	// Using JLibrary to create an 'Advanced Player object' which will handle playing the music
+	// Using JavaZoom JLayer library to create an 'Advanced Player object' which will handle playing the music
 	private AdvancedPlayer advancedPlayer;
 	
 	// pause Boolean Flag : To INDICATE WHETHER THE PLAYER has been 'PAUSED'
@@ -88,7 +88,7 @@ public class MusicPlayer extends PlaybackListener{
 			advancedPlayer.setPlayBackListener(this);
 			
 			// START MUSIC
-			startMusicThread();
+			startMusic_Thread();
 			
 			// START play-back slider thread
 			startPlaybackSlider_Thread();
@@ -100,7 +100,7 @@ public class MusicPlayer extends PlaybackListener{
 	}
 	
 	// Creating a thread that will handle playing the music
-	private void startMusicThread() {
+	private void startMusic_Thread() {
 		new Thread(new Runnable() {
 			
 			@Override
@@ -188,7 +188,7 @@ public class MusicPlayer extends PlaybackListener{
 	@Override
 	public void playbackFinished(PlaybackEvent evt) {
 		// This method is called when : * song FINISHES or, * the player gets CLOSED
-		System.out.println("Playback Finished");		
+		System.out.println("Playback Finished");
 		
 		if(isPaused) {
 			
@@ -197,9 +197,6 @@ public class MusicPlayer extends PlaybackListener{
 			// Converting milliseconds value to frame-value
 			
 			currentFrame += (int)((double)evt.getFrame() * currentSong.getFrameRatePerMillisecond()); 
-			
-// A portion to check timings
-//			System.out.println("Stopped @" + currentFrame);
 		}
 		
 	}
