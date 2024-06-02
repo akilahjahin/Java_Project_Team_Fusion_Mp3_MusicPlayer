@@ -1,7 +1,12 @@
 package mp3_music;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.util.ArrayList;
+
 import javazoom.jl.player.advanced.AdvancedPlayer;
 import javazoom.jl.player.advanced.PlaybackEvent;
 import javazoom.jl.player.advanced.PlaybackListener;
@@ -19,6 +24,8 @@ public class MusicPlayer extends PlaybackListener{
 	public Song getCurrentSong() {
 		return currentSong;
 	}
+	
+	private ArrayList<Song> playlist; 
 	
 	// Using JavaZoom JLayer library to create an 'Advanced Player object' which will handle playing the music
 	private AdvancedPlayer advancedPlayer;
@@ -50,6 +57,48 @@ public class MusicPlayer extends PlaybackListener{
 		
 		// Playing the current song if not null
 		if(currentSong != null) {
+			playCurrentSong();
+		}
+	}
+	
+	public void loadPlaylist(File playlistFile) {
+		playlist = new ArrayList<>();
+		
+		// STORE the paths from the text file into the play-list array list
+		try {
+			FileReader fileReader = new FileReader(playlistFile);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			
+			// REACH each line from the text-file and store the text into the songPath variable
+			String songPath;
+			while((songPath = bufferedReader.readLine()) != null) {
+				// CREATE song object based on song path
+				Song song = new Song(songPath);
+				
+				// ADD to play-list array-list
+				playlist.add(song);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		if(playlist.size() > 0) {
+			// RESET play_back slider
+			musicPlayerGUI.setPlaybackSlider_Value(0);
+			currentTimeIn_Milliseconds = 0;
+			
+			// UPDATE current song to the 1st song in the play-list
+			currentSong = playlist.get(0);
+			
+			// START from the beginning frame
+			currentFrame = 0;
+			
+			// UPDATE GUI
+			musicPlayerGUI.enable_PauseButton_disable_PlayButton();
+			musicPlayerGUI.update_SongTitle_and_Artist(currentSong);
+			musicPlayerGUI.update_Playback_Slider(currentSong);
+			
+			// START SONG
 			playCurrentSong();
 		}
 	}

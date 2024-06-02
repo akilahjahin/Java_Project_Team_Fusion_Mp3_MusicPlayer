@@ -242,6 +242,26 @@ public class MusicPlayerGUI extends JFrame{
 		
 		
 		JMenuItem loadPlaylist = new JMenuItem("Load Playlist");
+		loadPlaylist.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser jFileChooser =  new JFileChooser();
+				jFileChooser.setFileFilter(new FileNameExtensionFilter("Playlist", "txt"));
+				jFileChooser.setCurrentDirectory(new File("C:\\\\Users\\\\Lenovo\\\\eclipse-workspace\\\\MP3Music_Player\\\\assets"));
+				
+				int result = jFileChooser.showOpenDialog(MusicPlayerGUI.this);
+				File selectedFile = jFileChooser.getSelectedFile();
+				
+				if(result == JFileChooser.APPROVE_OPTION && selectedFile != null) {
+					// STOP THE MUSIC
+					musicPlayer.stopSong();
+					
+					// Load Playlist
+					musicPlayer.loadPlaylist(selectedFile);
+				}
+			}
+		});
 		
 		playlistMenu.add(loadPlaylist);
 		
@@ -321,13 +341,13 @@ public class MusicPlayerGUI extends JFrame{
 	}
 	
 	
-	private void update_SongTitle_and_Artist(Song song) {
+	public void update_SongTitle_and_Artist(Song song) {
 		songTitle.setText(song.getsongTitle());
 		songArtist.setText(song.getsongArtist());
 	}
 	
 	
-	private void update_Playback_Slider(Song song) {
+	public void update_Playback_Slider(Song song) {
 		// To UPDATE max count for slider
 		playbackSlider.setMaximum(song.getMp3File().getFrameCount());
 		
@@ -352,7 +372,7 @@ public class MusicPlayerGUI extends JFrame{
 	}
 	
 	
-	private void enable_PauseButton_disable_PlayButton() {
+	public void enable_PauseButton_disable_PlayButton() {
 		// Retrieve reference to 'Play' Button from playbackButtons panel
 		JButton playButton = (JButton) playbackButtons.getComponent(1);
 		JButton pauseButton = (JButton) playbackButtons.getComponent(2);
@@ -367,7 +387,7 @@ public class MusicPlayerGUI extends JFrame{
 	}
 	
 	
-	private void enable_PlayButton_disable_PauseButton() {
+	public void enable_PlayButton_disable_PauseButton() {
 		// Retrieve reference to 'Pause' Button from playbackButtons panel
 		JButton playButton = (JButton) playbackButtons.getComponent(1);
 		JButton pauseButton = (JButton) playbackButtons.getComponent(2);
