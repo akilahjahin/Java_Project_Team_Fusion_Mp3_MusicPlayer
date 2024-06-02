@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -13,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -86,6 +89,58 @@ public class MusicPlaylistDialog extends JDialog{
 		JButton savePlaylistButton = new JButton("Save");
 		savePlaylistButton.setBounds(215, (int)(getHeight()*0.80), 100, 25); // x, , width, height
 		savePlaylistButton.setFont(new Font("Dialog", Font.BOLD, 14));
+		savePlaylistButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					JFileChooser jFileChooser = new JFileChooser();
+					jFileChooser.setCurrentDirectory(new File("C:\\Users\\Lenovo\\eclipse-workspace\\MP3Music_Player\\assets"));//pathname
+					int result = jFileChooser.showSaveDialog(MusicPlaylistDialog.this);
+					
+					if(result == JFileChooser.APPROVE_OPTION) {
+						// Selected File used to get reference to the file that we are about to SAVE
+						File selectedFile = jFileChooser.getSelectedFile();
+						
+						// NOTE:
+						/*
+						 *Our file will be saved as a text-file
+						 *If it is already not one, we check it by checking the extension .txt
+						 *Otherwise, we simply convert it to ".txt"
+						*/
+						
+						// Convert to .txt file if not done so already
+						// This will check if the file does not have the ".txt" file extension
+						if(!selectedFile.getName().substring(selectedFile.getName().length()-4).equalsIgnoreCase(".txt")) {
+							selectedFile = new File(selectedFile.getAbsoluteFile() + ".txt");
+							
+						}
+						
+						// Create NEW File at the destinated directory
+						selectedFile.createNewFile();
+						
+						// ALL of the Song-Paths will be written into this file
+						FileWriter fileWriter = new FileWriter(selectedFile);
+						BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+						
+						// Iterate through our Song-Paths List & Write each string into the file
+						// Each song will be written in their own row
+						for(String songPath : songPaths) {
+							bufferedWriter.write(songPath + "\n");
+						}
+						bufferedWriter.close();
+						
+						// Display Success Dialog
+						JOptionPane.showMessageDialog(MusicPlaylistDialog.this, "Successfully Created Playlist!");
+						
+						// CLOSE this Dialog
+						MusicPlaylistDialog.this.dispose();
+					}
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
+			}
+		});
 		add(savePlaylistButton);
 	}
 }
