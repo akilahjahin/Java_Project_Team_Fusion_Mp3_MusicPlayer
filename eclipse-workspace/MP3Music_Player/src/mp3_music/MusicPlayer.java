@@ -27,11 +27,19 @@ public class MusicPlayer extends PlaybackListener{
 	
 	private ArrayList<Song> playlist; 
 	
+	// We need to keep track of the index we are in the play-list
+	private int currentPlaylistIndex = 0;
+	
 	// Using JavaZoom JLayer library to create an 'Advanced Player object' which will handle playing the music
 	private AdvancedPlayer advancedPlayer;
 	
 	// pause Boolean Flag : To INDICATE WHETHER THE PLAYER has been 'PAUSED'
 	private boolean isPaused;
+	
+	// Boolean Flag used to indicate when the song ahs finished
+	private boolean songFinished;
+	
+	private boolean pressedNext, pressedPrev;
 	
 	// Stores in the LAST-FRAME when the play back is 'finished':
 	// Used for PAUSING & RESUMING
@@ -54,9 +62,23 @@ public class MusicPlayer extends PlaybackListener{
 	
 	public void loadSong(Song song) {
 		currentSong = song;
+		playlist = null;
+		
+		// STOP the song (if possible)
+		if(!songFinished)
+			stopSong();
 		
 		// Playing the current song if not null
 		if(currentSong != null) {
+			// RESET Frame
+			currentFrame = 0;
+			
+			// RESET Current Time in milliseconds
+			currentTimeIn_Milliseconds = 0;
+			
+			// UPDATE GUI
+			musicPlayerGUI.setPlaybackSlider_Value(0);
+			
 			playCurrentSong();
 		}
 	}
@@ -119,6 +141,74 @@ public class MusicPlayer extends PlaybackListener{
 			advancedPlayer.close();
 			advancedPlayer = null;
 		}
+	}
+	
+	public void nextSong() {
+		// NO NEED to go to the next song if there is NO Play-list
+		if(playlist == null) return;
+		
+		// TO CHECK IF REACHED THE PLAYLIST END : IF SO, DON'T DO ANYTHING
+		if(currentPlaylistIndex + 1 > playlist.size() - 1) return;
+		
+		pressedNext = true;
+		
+		// STOP the song (if possible)
+		if(!songFinished)
+			stopSong();
+		
+		// Increase CURRENT Play-list index 
+		currentPlaylistIndex++;
+		
+		// UPDATE CURRENT Song
+		currentSong = playlist.get(currentPlaylistIndex);
+		
+		// RESET Frame
+		currentFrame = 0;
+		
+		// RESET CURRENT Frame in milliseconds
+		currentTimeIn_Milliseconds = 0;
+		
+		// UPDATE GUI
+		musicPlayerGUI.enable_PauseButton_disable_PlayButton();
+		musicPlayerGUI.update_SongTitle_and_Artist(currentSong);
+		musicPlayerGUI.update_Playback_Slider(currentSong);
+		
+		// PLAY the song
+		playCurrentSong();
+	}
+	
+	public void prevSong() {
+		// NO NEED to go to the next song if there is NO Play-list
+		if(playlist == null) return;
+		
+		// TO CHECK IF ANY PREVIOUS SONG EXISTS IN THE PLAYLIST
+		if(currentPlaylistIndex - 1 < 0) return;
+		
+		pressedPrev = true;
+		
+		// STOP the song (if possible)
+		if(!songFinished)
+			stopSong();
+		
+		// Decrease CURRENT Play-list index 
+		currentPlaylistIndex--;
+		
+		// UPDATE CURRENT Song
+		currentSong = playlist.get(currentPlaylistIndex);
+		
+		// RESET Frame
+		currentFrame = 0;
+		
+		// RESET CURRENT Frame in milliseconds
+		currentTimeIn_Milliseconds = 0;
+		
+		// UPDATE GUI
+		musicPlayerGUI.enable_PauseButton_disable_PlayButton();
+		musicPlayerGUI.update_SongTitle_and_Artist(currentSong);
+		musicPlayerGUI.update_Playback_Slider(currentSong);
+		
+		// PLAY the song
+		playCurrentSong();
 	}
 	
 	public void playCurrentSong() {
@@ -204,7 +294,7 @@ public class MusicPlayer extends PlaybackListener{
 					}
 				}
 				
-				while(!isPaused) {
+				while(!isPaused && !songFinished && !pressedNext && !pressedPrev) {
 					try {
 						// Increment current time in milliseconds
 						currentTimeIn_Milliseconds++;
@@ -232,6 +322,9 @@ public class MusicPlayer extends PlaybackListener{
 	public void playbackStarted(PlaybackEvent evt) {
 		// This method is called in the BEGINNING of the song
 		System.out.println("Playback Started");
+		songFinished = false;
+		pressedNext = false;
+		pressedPrev = false;
 	}
 	
 	@Override
@@ -246,6 +339,26 @@ public class MusicPlayer extends PlaybackListener{
 			// Converting milliseconds value to frame-value
 			
 			currentFrame += (int)((double)evt.getFrame() * currentSong.getFrameRatePerMillisecond()); 
+		} else {
+			// If user presses 'Previous' OR 'Next' Buttons, we don't execute the rest of the following code
+			if(pressedNext || pressedPrev) return;
+			
+			// when the song ENDS, it will attempt to go to the NEXT song
+			songFinished = true;
+					
+			if(playlist == null) {
+				// UPDATE GUI
+				musicPlayerGUI.enable_PlayButton_disable_PauseButton();
+			} else {
+				// LAST Song in the play-list
+				if(currentPlaylistIndex == playlist.size() - 1) {
+					// UPDATE GUI
+					musicPlayerGUI.enable_PlayButton_disable_PauseButton();
+				} else {
+					// GO to the NEXT Song in the play-list
+					nextSong();
+				}
+			}
 		}
 		
 	}

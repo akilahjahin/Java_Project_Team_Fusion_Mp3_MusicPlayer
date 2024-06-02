@@ -257,7 +257,7 @@ public class MusicPlayerGUI extends JFrame{
 					// STOP THE MUSIC
 					musicPlayer.stopSong();
 					
-					// Load Playlist
+					// Load Play-list
 					musicPlayer.loadPlaylist(selectedFile);
 				}
 			}
@@ -280,6 +280,15 @@ public class MusicPlayerGUI extends JFrame{
 			JButton prevButton = new JButton(loadImage("C:\\Users\\Lenovo\\eclipse-workspace\\MP3Music_Player\\src\\previous (1).png"));
 			prevButton.setBorderPainted(false);
 			prevButton.setBackground(null);
+			prevButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Go to the PREVIOUS SONG
+					musicPlayer.prevSong();
+					
+				}
+			});
 			
 		playbackButtons.add(prevButton);
 		
@@ -328,6 +337,15 @@ public class MusicPlayerGUI extends JFrame{
 			JButton nextButton = new JButton(loadImage("C:\\Users\\Lenovo\\eclipse-workspace\\MP3Music_Player\\src\\next (1).png"));
 			nextButton.setBorderPainted(false);
 			nextButton.setBackground(null);
+			nextButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Go to the NEXT SONG
+					musicPlayer.nextSong();
+					
+				}
+			});
 									
 		playbackButtons.add(nextButton);
 		
