@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MusicPlayerGUI extends JFrame{
@@ -103,6 +105,14 @@ public class MusicPlayerGUI extends JFrame{
 		// Play back Buttons
 		addPlaybackButtons();
 		
+		// Adding a opaque panel behind title and songArtist
+			JPanel opaquePanel = new JPanel();
+			opaquePanel.setBounds(15, 270, getWidth()-42, 60);
+			opaquePanel.setBackground(FRAME_COLOR);
+			opaquePanel.setLayout(new BoxLayout(opaquePanel, BoxLayout.Y_AXIS)); // Set layout to Y_AXIS
+			
+		add(opaquePanel);
+		
 		// Adding a transparent panel as a background
 		    JPanel transparentPanel = new JPanel();
 		    transparentPanel.setBounds(15, 264, getWidth()-42, 236);
@@ -115,20 +125,20 @@ public class MusicPlayerGUI extends JFrame{
 			songTitle = new JLabel("Song Title");
 			songTitle.setBounds(0, 306, getWidth()-10, 40);
 			songTitle.setAlignmentX(Component.CENTER_ALIGNMENT); // To center align the component horizontally
-			songTitle.setFont(new Font("Dialog", Font.BOLD, 30));
+			songTitle.setFont(new Font("Dialog", Font.BOLD, 25));
 			songTitle.setForeground(TEXT_COLOR);
 				
-		transparentPanel.add(songTitle);
+		opaquePanel.add(songTitle);
 				
 		// Song Artist
 		    songArtist = new JLabel("Artist");
-		    songArtist.setBounds(0, 368, getWidth()-10, 30);
+		    songArtist.setBounds(0, 340, getWidth()-10, 30);
 		    songArtist.setAlignmentX(Component.CENTER_ALIGNMENT);
-		    songArtist.setFont(new Font("Dialog", Font.PLAIN, 25));
+		    songArtist.setFont(new Font("Dialog", Font.PLAIN, 20));
 		    songArtist.setForeground(TEXT_COLOR);
 		    songArtist.setHorizontalAlignment(SwingConstants.CENTER);
 				
-		transparentPanel.add(songArtist);
+		opaquePanel.add(songArtist);
 		
 		// Play back slider
 			playbackSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 0); // //min //max //value
@@ -144,7 +154,7 @@ public class MusicPlayerGUI extends JFrame{
 				@Override
 				public void mouseReleased(MouseEvent e) {
 					// When the user drops the tick
-					JSlider source = (JSlider)e.getSource();
+					JSlider source = (JSlider) e.getSource();
 					
 					// Get the frame-value from where the user wants to play-back
 					int frame = source.getValue();
@@ -163,8 +173,9 @@ public class MusicPlayerGUI extends JFrame{
 				}
 			});
 		
-			add(playbackSlider);
-		
+		add(playbackSlider);
+
+			
 		// load record image
 			JLabel songImage = new JLabel(loadImage("C:\\Users\\Lenovo\\eclipse-workspace\\MP3Music_Player\\src\\Photo by Jakob Rosen on Unsplash.jpg"));
 			songImage.setBounds(15, 0, getWidth()-42, 600); //x //y //getWidth() //height
@@ -300,8 +311,7 @@ public class MusicPlayerGUI extends JFrame{
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
-					
+	
 					// Toggle OFF 'Play' Button & Toggle ON 'Pause' Button
 					enable_PauseButton_disable_PlayButton();
 					
@@ -321,7 +331,6 @@ public class MusicPlayerGUI extends JFrame{
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
 					
 					// Toggle OFF 'Pause' Button & Toggle ON 'Play' Button
 						enable_PlayButton_disable_PauseButton();
@@ -418,7 +427,6 @@ public class MusicPlayerGUI extends JFrame{
 		pauseButton.setVisible(false);
 		pauseButton.setEnabled(false);
 	}
-	
 	
 	private ImageIcon loadImage(String imagePath) {
 		try {

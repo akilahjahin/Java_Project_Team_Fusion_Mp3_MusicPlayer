@@ -5,13 +5,16 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
+import javazoom.jl.decoder.SampleBuffer;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 import javazoom.jl.player.advanced.PlaybackEvent;
 import javazoom.jl.player.advanced.PlaybackListener;
 
-public class MusicPlayer extends PlaybackListener{
+public class MusicPlayer extends PlaybackListener {
 	
 	// Used to UPDATE 'isPaused' more synchronously
 	private static final Object playSignal = new Object();
@@ -36,7 +39,7 @@ public class MusicPlayer extends PlaybackListener{
 	// pause Boolean Flag : To INDICATE WHETHER THE PLAYER has been 'PAUSED'
 	private boolean isPaused;
 	
-	// Boolean Flag used to indicate when the song ahs finished
+	// Boolean Flag used to indicate when the song has finished
 	private boolean songFinished;
 	
 	private boolean pressedNext, pressedPrev;
@@ -59,8 +62,9 @@ public class MusicPlayer extends PlaybackListener{
 	public MusicPlayer(MusicPlayerGUI musicPlayerGUI) {
 		this.musicPlayerGUI = musicPlayerGUI;
 	}
-	
+    
 	public void loadSong(Song song) {
+		
 		currentSong = song;
 		playlist = null;
 		
@@ -84,6 +88,7 @@ public class MusicPlayer extends PlaybackListener{
 	}
 	
 	public void loadPlaylist(File playlistFile) {
+		
 		playlist = new ArrayList<>();
 		
 		// STORE the paths from the text file into the play-list array list
@@ -212,12 +217,12 @@ public class MusicPlayer extends PlaybackListener{
 	}
 	
 	public void playCurrentSong() {
+		// To avoid error-showing as currentSong was null at the beginning when 'play' button pressed
+		if(currentSong == null) {
+			return;
+		}
+					
 		try {
-			// To avoid error-showing as currentSong was null at the beginning when 'play' button pressed
-			if(currentSong == null) {
-				return;
-			}
-			
 			// READ MP3 Audio Data
 			FileInputStream fileInputStream = new FileInputStream(currentSong.getfilePath());
 			BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
@@ -225,7 +230,7 @@ public class MusicPlayer extends PlaybackListener{
 			// Creating a new Advanced Player
 			advancedPlayer = new AdvancedPlayer(bufferedInputStream);
 			advancedPlayer.setPlayBackListener(this);
-			
+            
 			// START MUSIC
 			startMusic_Thread();
 			
@@ -244,21 +249,23 @@ public class MusicPlayer extends PlaybackListener{
 			
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
+				
 				try {
-					synchronized (playSignal) {
-						// UPDATE 'isPaused' flag to false if the music is played 
-						// Since update_slider_Thread will not work until 'isPaused' is false
-						isPaused = false;
-						
-						// Notify other thread to continue(ensures 'isPaused' being set to false properly)
-						playSignal.notify();
-					}
 					
 					if(isPaused) {
+						synchronized (playSignal) {
+							// UPDATE 'isPaused' flag to false if the music is played 
+							// Since update_slider_Thread will not work until 'isPaused' is false
+							isPaused = false;
+							
+							// Notify other thread to continue(ensures 'isPaused' being set to false properly)
+							playSignal.notify();
+						}
+						
 						// RESUME MUSIC : from LAST-FRAME
 						// AdvancedPlayer has another method to start the song at a specified position:
 						advancedPlayer.play(currentFrame, Integer.MAX_VALUE);
+					
 					} else {
 						// PLAY MUSIC : from the BEGINNING
 						advancedPlayer.play();
@@ -270,7 +277,7 @@ public class MusicPlayer extends PlaybackListener{
 			}
 		}).start();
 	}
-	
+
 	
 	// A Thread to handle UPDATING the slider
 	private void startPlaybackSlider_Thread() {
@@ -278,7 +285,6 @@ public class MusicPlayer extends PlaybackListener{
 			
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				
 				if (isPaused) {
 					try {
@@ -289,7 +295,7 @@ public class MusicPlayer extends PlaybackListener{
 							
 						}
 					} catch (Exception e) {
-						// TODO: handle exception
+						
 						e.printStackTrace();
 					}
 				}
@@ -309,7 +315,6 @@ public class MusicPlayer extends PlaybackListener{
 						Thread.sleep(1);
 						
 					} catch (Exception e) {
-						// TODO: handle exception
 						
 						e.printStackTrace();
 					}
@@ -317,6 +322,7 @@ public class MusicPlayer extends PlaybackListener{
 			}
 		}).start();
 	}
+
 	
 	@Override
 	public void playbackStarted(PlaybackEvent evt) {
@@ -325,6 +331,7 @@ public class MusicPlayer extends PlaybackListener{
 		songFinished = false;
 		pressedNext = false;
 		pressedPrev = false;
+		
 	}
 	
 	@Override

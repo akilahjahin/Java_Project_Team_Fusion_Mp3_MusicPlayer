@@ -23,7 +23,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class MusicPlaylistDialog extends JDialog{
 	private MusicPlayerGUI musicPlayerGUI;
 	
-	// STORING all of the Paths in a textFile when we Load a Playlist
+	// STORING all of the Paths in a textFile when we Load a Play-list
 	private ArrayList<String> songPaths;
 	
 	public MusicPlaylistDialog (MusicPlayerGUI musicPlayerGUI) {
